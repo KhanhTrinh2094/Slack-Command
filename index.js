@@ -72,15 +72,17 @@ app.post('/rebuild', (req, res) => {
 app.post('/interactive', (req, res) => {
   const body = JSON.parse(req.body.payload);
 
-  console.log(body);
-
   // check that the verification token matches expected value
   if (signature.isVerified(req)) {
-    console.log(`Form submission received: ${body.submission.trigger_id}`);
+    console.log(`Form submission received: ${body.submission.site}`);
 
     // immediately respond with a empty 200 response to let
     // Slack know the command was received
     res.send('');
+
+    if (body.submission.site) {
+      axios.post(`${process.env.JENKINS_URL}&Port=${body.submission.site}&User=${body.user.name}`, {});
+    }
   } else {
     console.log('Token mismatch');
     res.sendStatus(404);
