@@ -18,8 +18,6 @@ app.use(bodyParser.urlencoded({ extended: true, verify: (req, res, buf, encoding
 } })); // support encoded bodies
 
 app.post('/rebuild', (req, res) => {
-  code = execSync('node -v');
-
   const { port, trigger_id } = req.body;
 
   if (!signature.isVerified(req)) {
@@ -27,6 +25,15 @@ app.post('/rebuild', (req, res) => {
   }
 
   if (!port || !port.trim()) {
+    ports = execSync('docker ps -f label=name=bungee --format \'{{.Ports}}\'');
+    let options = [];
+
+    ports = ports.toString().split(/(?:\r\n|\r|\n)/g);
+
+    ports.forEach((item) => {
+      options.push({ label: item, value: 'Low' })
+    })
+
     const dialog = {
       token: process.env.SLACK_ACCESS_TOKEN,
       trigger_id,
@@ -36,26 +43,10 @@ app.post('/rebuild', (req, res) => {
         submit_label: 'Submit',
         elements: [
           {
-            label: 'Title',
-            type: 'text',
-            name: 'title',
-            hint: '30 second summary of the problem',
-          },
-          {
-            label: 'Description',
-            type: 'textarea',
-            name: 'description',
-            optional: true,
-          },
-          {
-            label: 'Urgency',
+            label: 'Site',
             type: 'select',
-            name: 'urgency',
-            options: [
-              { label: 'Low', value: 'Low' },
-              { label: 'Medium', value: 'Medium' },
-              { label: 'High', value: 'High' },
-            ],
+            name: 'site',
+            options: options,
           },
         ],
       }),
