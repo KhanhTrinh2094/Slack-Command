@@ -3,22 +3,34 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const axios = require('axios');
+const qs = require('querystring');
 const signature = require('./verify-signature');
+const execSync = require('child_process').execSync;
 const port = 20300;
 const bodyParser = require('body-parser');
 const apiUrl = 'https://slack.com/api';
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+app.use(function (req, res, next) {
+  var data = "";
+  req.on('data', function (chunk) { data += chunk })
+  req.on('end', function () {
+    req.rawBody = data;
+    next();
+  })
+});
 
 app.post('/rebuild', (req, res) => {
+  code = execSync('node -v');
+
   const { port, trigger_id } = req.body;
 
   if (!signature.isVerified(req)) {
     return res.sendStatus(404);
   }
 
-  if (!port.trim()) {
+  if (!port || !port.trim()) {
     const dialog = {
       token: process.env.SLACK_ACCESS_TOKEN,
       trigger_id,
@@ -31,7 +43,6 @@ app.post('/rebuild', (req, res) => {
             label: 'Title',
             type: 'text',
             name: 'title',
-            value: text,
             hint: '30 second summary of the problem',
           },
           {
