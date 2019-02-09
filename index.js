@@ -20,7 +20,8 @@ app.use(bodyParser.urlencoded({
 })); // support encoded bodies
 
 app.post('/rebuild', (req, res) => {
-  const { port, trigger_id } = req.body;
+  const { text, trigger_id } = req.body;
+  const port = text;
 
   if (!signature.isVerified(req)) {
     console.log('Token mismatch');
@@ -66,6 +67,8 @@ app.post('/rebuild', (req, res) => {
         console.log('dialog.open call failed: ' + JSON.stringify(err));
         res.sendStatus(500);
       });
+  } else {
+    axios.post(`${process.env.JENKINS_URL}&Port=${port}&User=${body.user.name}`, {});
   }
 })
 
