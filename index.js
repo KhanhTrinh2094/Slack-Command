@@ -31,7 +31,7 @@ app.post('/rebuild', (req, res) => {
     ports = ports.toString().split(/(?:\r\n|\r|\n)/g);
 
     ports.forEach((item) => {
-      options.push({ label: item, value: 'Low' })
+      options.push({ label: item.split[':'][1].split['-'][0], value: item.split[':'][1].split['-'][0] })
     })
 
     const dialog = {
