@@ -11,11 +11,13 @@ const bodyParser = require('body-parser');
 const apiUrl = 'https://slack.com/api';
 
 app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true, verify: (req, res, buf, encoding) => {
-  if (buf && buf.length) {
-    req.rawBody = buf.toString(encoding || 'utf8')
+app.use(bodyParser.urlencoded({
+  extended: true, verify: (req, res, buf, encoding) => {
+    if (buf && buf.length) {
+      req.rawBody = buf.toString(encoding || 'utf8')
+    }
   }
-} })); // support encoded bodies
+})); // support encoded bodies
 
 app.post('/rebuild', (req, res) => {
   const { port, trigger_id } = req.body;
@@ -31,7 +33,9 @@ app.post('/rebuild', (req, res) => {
     ports = ports.toString().split(/(?:\r\n|\r|\n)/g);
 
     ports.forEach((item) => {
-      options.push({ label: item.split[':'][1].split['-'][0], value: item.split[':'][1].split['-'][0] })
+      if (item) {
+        options.push({ label: 'http://spvn.simplypost.asia:' + item.split(':')[1].split('-')[0], value: item.split(':')[1].split('-')[0] })
+      }
     })
 
     const dialog = {
