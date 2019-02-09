@@ -10,8 +10,6 @@ const port = 20300;
 const bodyParser = require('body-parser');
 const apiUrl = 'https://slack.com/api';
 
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(function (req, res, next) {
   var data = "";
   req.on('data', function (chunk) { data += chunk })
@@ -20,6 +18,8 @@ app.use(function (req, res, next) {
     next();
   })
 });
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 app.post('/rebuild', (req, res) => {
   code = execSync('node -v');
