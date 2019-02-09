@@ -23,6 +23,7 @@ app.post('/rebuild', (req, res) => {
   const { port, trigger_id } = req.body;
 
   if (!signature.isVerified(req)) {
+    console.log('Token mismatch');
     return res.sendStatus(404);
   }
 
@@ -42,8 +43,8 @@ app.post('/rebuild', (req, res) => {
       token: process.env.SLACK_ACCESS_TOKEN,
       trigger_id,
       dialog: JSON.stringify({
-        title: 'Submit a helpdesk ticket',
-        callback_id: 'submit-ticket',
+        title: 'Rebuild Test Site',
+        callback_id: 'rebuild-test-site',
         submit_label: 'Submit',
         elements: [
           {
@@ -67,5 +68,23 @@ app.post('/rebuild', (req, res) => {
       });
   }
 })
+
+app.post('/interactive', (req, res) => {
+  const body = JSON.parse(req.body.payload);
+
+  console.log(body);
+
+  // check that the verification token matches expected value
+  if (signature.isVerified(req)) {
+    console.log(`Form submission received: ${body.submission.trigger_id}`);
+
+    // immediately respond with a empty 200 response to let
+    // Slack know the command was received
+    res.send('');
+  } else {
+    console.log('Token mismatch');
+    res.sendStatus(404);
+  }
+});
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
