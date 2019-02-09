@@ -69,6 +69,7 @@ app.post('/rebuild', (req, res) => {
       });
   } else {
     axios.post(`${process.env.JENKINS_URL}&Port=${port}&User=${req.body.user_name}`, {});
+    res.send('');
   }
 })
 
